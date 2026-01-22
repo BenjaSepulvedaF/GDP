@@ -1,12 +1,15 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 import { PageLayout } from "@/components/page-layout"
 import { Card, CardContent } from "@/components/ui/card"
 import { CalendarDays, Users, MapPin, Bed, PawPrint } from "lucide-react"
 import { useReservas, type Reserva } from "@/lib/reservas-context"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 // ... existing code for EstadoIndicador, ReservaSalonCard, ReservaHabitacionCard ...
 
@@ -46,7 +49,15 @@ const EstadoIndicador = ({ estado }: { estado: string }) => {
   )
 }
 
-function ReservaSalonCard({ reserva }: { reserva: Reserva & { tipo: "salon" } }) {
+function ReservaSalonCard({
+  reserva,
+  onMarcarAbono,
+}: {
+  reserva: Reserva & { tipo: "salon" }
+  onMarcarAbono: (id: string, monto?: number) => void
+}) {
+  const [checked, setChecked] = useState(false)
+  const [monto, setMonto] = useState<string>("")
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardContent className="p-6">
@@ -61,6 +72,53 @@ function ReservaSalonCard({ reserva }: { reserva: Reserva & { tipo: "salon" } })
             <p className="text-sm text-muted-foreground">Reservado por: {reserva.nombre}</p>
             {reserva.abono && reserva.abono > 0 && (
               <p className="text-sm font-medium text-green-600">Abono: ${reserva.abono}</p>
+            )}
+            {!reserva.abono && (
+              <div className="space-y-2">
+                <div className="flex items-center gap-3">
+                  <p className="text-sm font-medium text-red-600">Sin abono</p>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={(e) => setChecked(e.target.checked)}
+                      className="w-4 h-4"
+                    />
+                    <span className="text-sm">Marcar abonado</span>
+                  </label>
+                </div>
+                {checked && (
+                  <div className="flex items-center gap-3">
+                    <div className="flex flex-col">
+                      <Label className="text-sm text-muted-foreground">Monto</Label>
+                      <Input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={monto}
+                        onChange={(e) => setMonto(e.target.value)}
+                        placeholder="0.00"
+                        className="w-28"
+                      />
+                    </div>
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        const parsed = parseFloat(monto.replace(",", "."))
+                        if (isNaN(parsed) || parsed < 0) {
+                          alert("Monto inválido")
+                          return
+                        }
+                        onMarcarAbono(reserva.id, parsed)
+                        setChecked(false)
+                        setMonto("")
+                      }}
+                    >
+                      Guardar
+                    </Button>
+                  </div>
+                )}
+              </div>
             )}
           </div>
 
@@ -88,7 +146,15 @@ function ReservaSalonCard({ reserva }: { reserva: Reserva & { tipo: "salon" } })
   )
 }
 
-function ReservaHabitacionCard({ reserva }: { reserva: Reserva & { tipo: "habitacion" } }) {
+function ReservaHabitacionCard({
+  reserva,
+  onMarcarAbono,
+}: {
+  reserva: Reserva & { tipo: "habitacion" }
+  onMarcarAbono: (id: string, monto?: number) => void
+}) {
+  const [checked, setChecked] = useState(false)
+  const [monto, setMonto] = useState<string>("")
   const noches = Math.ceil(
     (new Date(reserva.checkOut).getTime() - new Date(reserva.checkIn).getTime()) / (1000 * 60 * 60 * 24),
   )
@@ -115,6 +181,53 @@ function ReservaHabitacionCard({ reserva }: { reserva: Reserva & { tipo: "habita
             )}
             {reserva.abono && reserva.abono > 0 && (
               <p className="text-sm font-medium text-green-600">Abono: ${reserva.abono}</p>
+            )}
+            {!reserva.abono && (
+              <div className="space-y-2">
+                <div className="flex items-center gap-3">
+                  <p className="text-sm font-medium text-red-600">Sin abono</p>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={(e) => setChecked(e.target.checked)}
+                      className="w-4 h-4"
+                    />
+                    <span className="text-sm">¿Ha realizado el abono?</span>
+                  </label>
+                </div>
+                {checked && (
+                  <div className="flex items-center gap-3">
+                    <div className="flex flex-col">
+                      <Label className="text-sm text-muted-foreground">Monto</Label>
+                      <Input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={monto}
+                        onChange={(e) => setMonto(e.target.value)}
+                        placeholder="0.00"
+                        className="w-28"
+                      />
+                    </div>
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        const parsed = parseFloat(monto.replace(",", "."))
+                        if (isNaN(parsed) || parsed < 0) {
+                          alert("Monto inválido")
+                          return
+                        }
+                        onMarcarAbono(reserva.id, parsed)
+                        setChecked(false)
+                        setMonto("")
+                      }}
+                    >
+                      Guardar
+                    </Button>
+                  </div>
+                )}
+              </div>
             )}
           </div>
 
@@ -149,9 +262,18 @@ function ReservaHabitacionCard({ reserva }: { reserva: Reserva & { tipo: "habita
 }
 
 export default function ListaReservasPage() {
-  const { reservas } = useReservas()
+  const { reservas, marcarAbono } = useReservas()
   const { isAuthenticated, isLoading } = useAuth()
   const router = useRouter()
+
+  const handleMarcarAbono = (id: string, monto?: number) => {
+    if (monto === undefined) return
+    if (isNaN(monto) || monto < 0) {
+      alert("Monto inválido")
+      return
+    }
+    marcarAbono(id, monto)
+  }
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -207,9 +329,9 @@ export default function ListaReservasPage() {
             <div className="space-y-4">
               {reservas.map((reserva) =>
                 reserva.tipo === "salon" ? (
-                  <ReservaSalonCard key={reserva.id} reserva={reserva} />
+                  <ReservaSalonCard key={reserva.id} reserva={reserva} onMarcarAbono={handleMarcarAbono} />
                 ) : (
-                  <ReservaHabitacionCard key={reserva.id} reserva={reserva} />
+                  <ReservaHabitacionCard key={reserva.id} reserva={reserva} onMarcarAbono={handleMarcarAbono} />
                 ),
               )}
             </div>

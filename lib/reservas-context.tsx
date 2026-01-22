@@ -8,6 +8,8 @@ export interface ReservaSalon {
   salon: string
   salonId: number
   fecha: string
+  horaInicioEvento?: string
+  horaFinEvento?: string
   personas: number
   nombre: string
   email: string
@@ -42,6 +44,7 @@ interface ReservasContextType {
   reservas: Reserva[]
   agregarReservaSalon: (reserva: Omit<ReservaSalon, "id" | "fechaCreacion" | "estado">) => void
   agregarReservaHabitacion: (reserva: Omit<ReservaHabitacion, "id" | "fechaCreacion" | "estado">) => void
+  marcarAbono: (id: string, monto: number) => void
 }
 
 const ReservasContext = createContext<ReservasContextType | undefined>(undefined)
@@ -98,8 +101,19 @@ export function ReservasProvider({ children }: { children: ReactNode }) {
     setReservas((prev) => [nuevaReserva, ...prev])
   }
 
+  const marcarAbono = (id: string, monto: number) => {
+    setReservas((prev) =>
+      prev.map((r) => {
+        if (r.id !== id) return r
+        return { ...r, abono: monto, estado: "confirmada" } as Reserva
+      }),
+    )
+  }
+
   return (
-    <ReservasContext.Provider value={{ reservas, agregarReservaSalon, agregarReservaHabitacion }}>
+    <ReservasContext.Provider
+      value={{ reservas, agregarReservaSalon, agregarReservaHabitacion, marcarAbono }}
+    >
       {children}
     </ReservasContext.Provider>
   )

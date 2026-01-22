@@ -35,7 +35,18 @@ function DatosContent() {
     descripcion: "",
     tieneAbono: false,
     montoAbono: "",
+    horaInicioEvento: "",
+    horaFinEvento: "",
   })
+
+  const [timeErrors, setTimeErrors] = useState({ inicio: "", fin: "" })
+  const ALLOWED_START = "09:00"
+  const ALLOWED_END = "01:00"
+
+  const isAllowedWindow = (time: string) => {
+    if (!time) return true
+    return time >= ALLOWED_START || time <= ALLOWED_END
+  }
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -56,12 +67,40 @@ function DatosContent() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
+    // validar horas obligatorias
+    const inicio = formData.horaInicioEvento
+    const fin = formData.horaFinEvento
+    if (!inicio) {
+      setTimeErrors((t) => ({ ...t, inicio: "Ingrese la hora de inicio del evento" }))
+      return
+    }
+    if (!isAllowedWindow(inicio)) {
+      setTimeErrors((t) => ({ ...t, inicio: `Horario permitido: ${ALLOWED_START} – ${ALLOWED_END}` }))
+      return
+    }
+    if (!fin) {
+      setTimeErrors((t) => ({ ...t, fin: "Ingrese la hora de fin del evento" }))
+      return
+    }
+    if (!isAllowedWindow(fin)) {
+      setTimeErrors((t) => ({ ...t, fin: `Horario permitido: ${ALLOWED_START} – ${ALLOWED_END}` }))
+      return
+    }
+    // check order across midnight: if start <= end and both in same day, require start < end; if start > end, it's valid (spans midnight)
+    const spansMidnight = inicio > fin
+    if (!spansMidnight && inicio >= fin) {
+      setTimeErrors((t) => ({ ...t, fin: "La hora de fin debe ser posterior a la de inicio" }))
+      return
+    }
+
     // Guardar solicitud (con estado pendiente para clientes)
     agregarReservaSalon({
       tipo: "salon",
       salon: salon.nombre,
       salonId: salonId,
       fecha: fecha || "",
+      horaInicioEvento: formData.horaInicioEvento,
+      horaFinEvento: formData.horaFinEvento,
       personas: Number(formData.personas),
       nombre: formData.nombre,
       email: formData.email,
@@ -75,9 +114,14 @@ function DatosContent() {
       nombre: formData.nombre,
       email: formData.email,
       personas: formData.personas,
+      horaInicioEvento: formData.horaInicioEvento,
+      horaFinEvento: formData.horaFinEvento,
     })
     router.push(`/solicitar-salon/confirmacion?${params.toString()}`)
   }
+
+  const isFormValid =
+    Boolean(formData.nombre && formData.email && formData.personas && formData.horaInicioEvento && formData.horaFinEvento && formData.horaInicioEvento < formData.horaFinEvento)
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -135,6 +179,54 @@ function DatosContent() {
           />
         </div>
 
+        <div className="grid md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Hora de inicio del evento</label>
+            <Input
+              id="horaInicioEvento"
+              name="horaInicioEvento"
+              type="time"
+              required
+              value={formData.horaInicioEvento}
+              onChange={(e) => {
+                const val = e.target.value
+                setFormData((prev) => ({ ...prev, horaInicioEvento: val }))
+                if (!isAllowedWindow(val)) {
+                  setTimeErrors((t) => ({ ...t, inicio: `Horario permitido: ${ALLOWED_START} – ${ALLOWED_END}` }))
+                } else if (formData.horaFinEvento && val >= formData.horaFinEvento) {
+                  setTimeErrors((t) => ({ ...t, fin: "La hora de fin debe ser posterior a la de inicio" }))
+                } else {
+                  setTimeErrors((t) => ({ ...t, inicio: "", fin: "" }))
+                }
+              }}
+            />
+            {timeErrors.inicio && <p className="text-sm text-red-600">{timeErrors.inicio}</p>}
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Hora de fin del evento</label>
+            <Input
+              id="horaFinEvento"
+              name="horaFinEvento"
+              type="time"
+              required
+              value={formData.horaFinEvento}
+              onChange={(e) => {
+                const val = e.target.value
+                setFormData((prev) => ({ ...prev, horaFinEvento: val }))
+                if (!isAllowedWindow(val)) {
+                  setTimeErrors((t) => ({ ...t, fin: `Horario permitido: ${ALLOWED_START} – ${ALLOWED_END}` }))
+                } else if (formData.horaInicioEvento && formData.horaInicioEvento >= val) {
+                  setTimeErrors((t) => ({ ...t, fin: "La hora de fin debe ser posterior a la de inicio" }))
+                } else {
+                  setTimeErrors((t) => ({ ...t, fin: "" }))
+                }
+              }}
+            />
+            {timeErrors.fin && <p className="text-sm text-red-600">{timeErrors.fin}</p>}
+          </div>
+        </div>
+
         <div className="space-y-3 p-4 bg-muted/30 rounded-lg">
           <div className="flex items-center gap-3">
             <input
@@ -172,7 +264,9 @@ function DatosContent() {
             Atrás
           </Button>
         </Link>
-        <Button type="submit">Enviar Solicitud</Button>
+        <Button type="submit" disabled={!isFormValid}>
+          Enviar Solicitud
+        </Button>
       </div>
     </form>
   )

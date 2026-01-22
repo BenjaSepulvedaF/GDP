@@ -39,11 +39,38 @@ export function DatosHuespedContent() {
     montoAbono: "",
   })
 
+  const [timeErrors, setTimeErrors] = useState({ horaCheckIn: "", horaCheckOut: "" })
+
+  const CHECKIN_MIN = "08:00"
+  const CHECKIN_MAX = "15:00"
+  const CHECKOUT_MIN = "08:00"
+  const CHECKOUT_MAX = "13:00"
+
+  const isTimeInRange = (time: string, min: string, max: string) => {
+    if (!time) return true
+    return time >= min && time <= max
+  }
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }))
+    const { name, value } = e.target as HTMLInputElement
+
+    if (name === "horaCheckIn") {
+      if (!isTimeInRange(value, CHECKIN_MIN, CHECKIN_MAX)) {
+        setTimeErrors((prev) => ({ ...prev, horaCheckIn: `La hora de check-in debe estar entre ${CHECKIN_MIN} y ${CHECKIN_MAX}` }))
+      } else {
+        setTimeErrors((prev) => ({ ...prev, horaCheckIn: "" }))
+      }
+    }
+
+    if (name === "horaCheckOut") {
+      if (!isTimeInRange(value, CHECKOUT_MIN, CHECKOUT_MAX)) {
+        setTimeErrors((prev) => ({ ...prev, horaCheckOut: `La hora de check-out debe estar entre ${CHECKOUT_MIN} y ${CHECKOUT_MAX}` }))
+      } else {
+        setTimeErrors((prev) => ({ ...prev, horaCheckOut: "" }))
+      }
+    }
+
+    setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
   const handleCheckboxChange = (checked: boolean) => {
@@ -56,6 +83,14 @@ export function DatosHuespedContent() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    if (formData.horaCheckIn && !isTimeInRange(formData.horaCheckIn, CHECKIN_MIN, CHECKIN_MAX)) {
+      setTimeErrors((prev) => ({ ...prev, horaCheckIn: `La hora de check-in debe estar entre ${CHECKIN_MIN} y ${CHECKIN_MAX}` }))
+      return
+    }
+    if (formData.horaCheckOut && !isTimeInRange(formData.horaCheckOut, CHECKOUT_MIN, CHECKOUT_MAX)) {
+      setTimeErrors((prev) => ({ ...prev, horaCheckOut: `La hora de check-out debe estar entre ${CHECKOUT_MIN} y ${CHECKOUT_MAX}` }))
+      return
+    }
     const params = new URLSearchParams({
       checkIn: checkIn || "",
       checkOut: checkOut || "",
@@ -73,7 +108,15 @@ export function DatosHuespedContent() {
   }
 
   const isFormValid =
-    formData.nombre && formData.email && formData.telefono && formData.documento && formData.numeroHuespedes
+    formData.nombre &&
+    formData.email &&
+    formData.telefono &&
+    formData.documento &&
+    formData.numeroHuespedes &&
+    formData.horaCheckIn &&
+    formData.horaCheckOut &&
+    !timeErrors.horaCheckIn &&
+    !timeErrors.horaCheckOut
 
   return (
     <PageLayout>
@@ -203,26 +246,38 @@ export function DatosHuespedContent() {
 
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="horaCheckIn">Hora de Check-in (opcional)</Label>
+                    <Label htmlFor="horaCheckIn">Hora de Check-in</Label>
                     <Input
                       id="horaCheckIn"
                       name="horaCheckIn"
                       type="time"
+                      min={CHECKIN_MIN}
+                      max={CHECKIN_MAX}
+                      required
                       value={formData.horaCheckIn}
                       onChange={handleChange}
                       placeholder="14:00"
                     />
+                    {timeErrors.horaCheckIn && (
+                      <p className="text-sm text-red-600">{timeErrors.horaCheckIn}</p>
+                    )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="horaCheckOut">Hora de Check-out (opcional)</Label>
+                    <Label htmlFor="horaCheckOut">Hora de Check-out</Label>
                     <Input
                       id="horaCheckOut"
                       name="horaCheckOut"
                       type="time"
+                      min={CHECKOUT_MIN}
+                      max={CHECKOUT_MAX}
+                      required
                       value={formData.horaCheckOut}
                       onChange={handleChange}
                       placeholder="12:00"
                     />
+                    {timeErrors.horaCheckOut && (
+                      <p className="text-sm text-red-600">{timeErrors.horaCheckOut}</p>
+                    )}
                   </div>
                 </div>
 
