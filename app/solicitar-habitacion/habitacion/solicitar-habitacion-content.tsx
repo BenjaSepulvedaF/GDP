@@ -84,11 +84,10 @@ export function SolicitarHabitacionContent() {
               setSelectedHabitacion(hab.id)
               if (!hab.petFriendlyDisponible) setPetFriendly(false)
             }}
-            className={`w-full p-6 rounded-xl border-2 text-left transition-all ${
-              selectedHabitacion === hab.id
-                ? "border-primary bg-primary/5"
-                : "border-border hover:border-primary/50 bg-card"
-            }`}
+            className={`w-full p-6 rounded-xl border-2 text-left transition-all ${selectedHabitacion === hab.id
+              ? "border-primary bg-primary/5"
+              : "border-border hover:border-primary/50 bg-card"
+              }`}
           >
             <div className="flex justify-between items-start">
               <div className="flex gap-4">
@@ -108,7 +107,7 @@ export function SolicitarHabitacionContent() {
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-xl font-bold text-primary">${hab.precio}</p>
+                <p className="text-xl font-bold text-primary">${hab.precio} USD</p>
                 <p className="text-xs text-muted-foreground">por noche</p>
                 {selectedHabitacion === hab.id && <CheckCircle className="w-6 h-6 text-primary mt-2 ml-auto" />}
               </div>
@@ -133,7 +132,7 @@ export function SolicitarHabitacionContent() {
       {total > 0 && (
         <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 text-center">
           <p className="text-lg">
-            Total estimado: <span className="font-bold text-primary">${total}</span>
+            Total estimado: <span className="font-bold text-primary">${total} USD</span>
           </p>
         </div>
       )}
