@@ -29,9 +29,9 @@ export default function SolicitarHabitacionPage() {
   if (!isAuthenticated) return null
 
   const habitaciones = [
-    { tipo: "Estándar", cantidad: 80, precio: "$80/noche" },
-    { tipo: "Superior con vista al mar", cantidad: 30, precio: "$120/noche" },
-    { tipo: "Suite Ejecutiva", cantidad: 10, precio: "$200/noche" },
+    { tipo: "Estándar", cantidad: 80, precio: "$80 USD/noche" },
+    { tipo: "Superior con vista al mar", cantidad: 30, precio: "$120 USD/noche" },
+    { tipo: "Suite Ejecutiva", cantidad: 10, precio: "$200 USD/noche" },
   ]
 
   return (

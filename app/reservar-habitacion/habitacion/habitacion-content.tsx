@@ -23,47 +23,47 @@ const habitaciones: {
   icon: typeof BedDouble
   caracteristicas: string[]
 }[] = [
-  {
-    id: "estandar",
-    nombre: "Habitación Estándar",
-    capacidad: 2,
-    total: 80,
-    disponibles: 45,
-    petFriendly: 40,
-    precio: 80,
-    icon: BedDouble,
-    caracteristicas: ["WiFi gratis", "TV por cable", "Aire acondicionado", "Baño privado", "No fumadores"],
-  },
-  {
-    id: "superior",
-    nombre: "Habitación Superior",
-    capacidad: 3,
-    total: 30,
-    disponibles: 18,
-    petFriendly: 0,
-    precio: 150,
-    icon: Star,
-    caracteristicas: ["Vista al mar", "WiFi gratis", "TV pantalla plana", "Minibar", "Balcón privado", "No fumadores"],
-  },
-  {
-    id: "suite",
-    nombre: "Suite Ejecutiva",
-    capacidad: 4,
-    total: 10,
-    disponibles: 5,
-    petFriendly: 0,
-    precio: 280,
-    icon: Crown,
-    caracteristicas: [
-      "Sala de estar",
-      "Vista panorámica al mar",
-      "Jacuzzi",
-      "Servicio de habitación 24h",
-      "Desayuno incluido",
-      "No fumadores",
-    ],
-  },
-]
+    {
+      id: "estandar",
+      nombre: "Habitación Estándar",
+      capacidad: 2,
+      total: 80,
+      disponibles: 45,
+      petFriendly: 40,
+      precio: 80,
+      icon: BedDouble,
+      caracteristicas: ["WiFi gratis", "TV por cable", "Aire acondicionado", "Baño privado", "No fumadores"],
+    },
+    {
+      id: "superior",
+      nombre: "Habitación Superior",
+      capacidad: 3,
+      total: 30,
+      disponibles: 18,
+      petFriendly: 0,
+      precio: 150,
+      icon: Star,
+      caracteristicas: ["Vista al mar", "WiFi gratis", "TV pantalla plana", "Minibar", "Balcón privado", "No fumadores"],
+    },
+    {
+      id: "suite",
+      nombre: "Suite Ejecutiva",
+      capacidad: 4,
+      total: 10,
+      disponibles: 5,
+      petFriendly: 0,
+      precio: 280,
+      icon: Crown,
+      caracteristicas: [
+        "Sala de estar",
+        "Vista panorámica al mar",
+        "Jacuzzi",
+        "Servicio de habitación 24h",
+        "Desayuno incluido",
+        "No fumadores",
+      ],
+    },
+  ]
 
 export function HabitacionContent() {
   const router = useRouter()
@@ -173,7 +173,7 @@ export function HabitacionContent() {
                         </div>
                       </div>
                       <div className="text-right flex-shrink-0">
-                        <p className="text-2xl font-bold text-primary">${hab.precio}</p>
+                        <p className="text-2xl font-bold text-primary">${hab.precio} USD</p>
                         <p className="text-xs text-muted-foreground">por noche</p>
                         <span
                           className={cn(
@@ -215,7 +215,7 @@ export function HabitacionContent() {
                     <span className="font-bold text-primary text-lg">
                       $
                       {selectedRoom.precio *
-                        Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24))}
+                        Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24))} USD
                     </span>{" "}
                     por{" "}
                     {Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24))}{" "}

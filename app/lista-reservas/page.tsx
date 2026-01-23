@@ -71,7 +71,7 @@ function ReservaSalonCard({
             <p className="text-muted-foreground">{reserva.descripcion || "Evento en salón"}</p>
             <p className="text-sm text-muted-foreground">Reservado por: {reserva.nombre}</p>
             {reserva.abono && reserva.abono > 0 && (
-              <p className="text-sm font-medium text-green-600">Abono: ${reserva.abono}</p>
+              <p className="text-sm font-medium text-green-600">Abono: ${reserva.abono} USD</p>
             )}
             {!reserva.abono && (
               <div className="space-y-2">
@@ -90,7 +90,7 @@ function ReservaSalonCard({
                 {checked && (
                   <div className="flex items-center gap-3">
                     <div className="flex flex-col">
-                      <Label className="text-sm text-muted-foreground">Monto</Label>
+                      <Label className="text-sm text-muted-foreground">Monto (USD)</Label>
                       <Input
                         type="number"
                         min="0"
@@ -180,7 +180,7 @@ function ReservaHabitacionCard({
               </p>
             )}
             {reserva.abono && reserva.abono > 0 && (
-              <p className="text-sm font-medium text-green-600">Abono: ${reserva.abono}</p>
+              <p className="text-sm font-medium text-green-600">Abono: ${reserva.abono} USD</p>
             )}
             {!reserva.abono && (
               <div className="space-y-2">
@@ -199,7 +199,7 @@ function ReservaHabitacionCard({
                 {checked && (
                   <div className="flex items-center gap-3">
                     <div className="flex flex-col">
-                      <Label className="text-sm text-muted-foreground">Monto</Label>
+                      <Label className="text-sm text-muted-foreground">Monto (USD)</Label>
                       <Input
                         type="number"
                         min="0"
